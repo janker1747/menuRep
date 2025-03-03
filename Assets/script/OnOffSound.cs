@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -9,19 +8,34 @@ public class OnOffSound : MonoBehaviour
 
     [SerializeField] private AudioMixerGroup _mixerGroup;
 
+    public event Action<bool> SoundStateChanged;
+
     private bool _isMuted;
+    private float _savedVolume;
 
-    public void ToggleMixer()
+    public void ToggleSound()
     {
-        _isMuted = !_isMuted;
-
         if (_isMuted)
         {
-            _mixerGroup.audioMixer.SetFloat(MixerGroup, -80f);
+            UnmuteSound();
         }
         else
         {
-            _mixerGroup.audioMixer.SetFloat(MixerGroup, 0f);
+            MuteSound();
         }
+
+        _isMuted = !_isMuted;
+        SoundStateChanged?.Invoke(_isMuted);
+    }
+
+    private void MuteSound()
+    {
+        _mixerGroup.audioMixer.GetFloat(MixerGroup, out _savedVolume);
+        _mixerGroup.audioMixer.SetFloat(MixerGroup, -80f);
+    }
+
+    private void UnmuteSound()
+    {
+        _mixerGroup.audioMixer.SetFloat(MixerGroup, _savedVolume);
     }
 }
