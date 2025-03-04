@@ -5,8 +5,8 @@ public class VolumeSettings : MonoBehaviour
 {
     [SerializeField] private OnOffSound _onOffSound;
     [SerializeField] protected AudioMixerGroup _mixer;
+    [SerializeField] private string _mixerGroup;
 
-    protected string _mixerGroup;
     private float _savedVolume;
 
     private void Awake()
@@ -26,12 +26,14 @@ public class VolumeSettings : MonoBehaviour
 
     private void HandleSoundStateChanged(bool isMuted)
     {
+        float minVolume = -80f;
+
         if (isMuted)
         {
             _mixer.audioMixer.GetFloat(_mixerGroup, out _savedVolume);
-            _mixer.audioMixer.SetFloat(_mixerGroup, -80f);
+            _mixer.audioMixer.SetFloat(_mixerGroup, minVolume);
         }
-        else 
+        else
         {
             _mixer.audioMixer.SetFloat(_mixerGroup, _savedVolume);
         }
@@ -39,7 +41,9 @@ public class VolumeSettings : MonoBehaviour
 
     public void ChangeVolume(float volume)
     {
-        _mixer.audioMixer.SetFloat(_mixerGroup, Mathf.Log(volume) * 20);
+        float volumeMultiplier = 20f;
+
+        _mixer.audioMixer.SetFloat(_mixerGroup, Mathf.Log10(volume) * volumeMultiplier);
     }
 
 }
